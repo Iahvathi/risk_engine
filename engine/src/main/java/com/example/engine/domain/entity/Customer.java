@@ -5,20 +5,27 @@ import com.example.engine.domain.enums.CustomerStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.Filter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Convert;
+import com.example.engine.encryption.AttributeEncryptor;
+
+
 @Entity
 @Table(name = "customers")
 @Getter
 @Setter
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer {
+public class Customer extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +35,8 @@ public class Customer {
     @Column(nullable = false)
     private String fullName;
 
-    //@NotNull
-    @Column(nullable = false, unique = true)
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(nullable = false)
     private String nationalId;
 
     //@NotNull
@@ -80,6 +87,11 @@ public class Customer {
             orphanRemoval = false
     )
     private List<RiskEvaluation>  riskEvaluations = new ArrayList<>();
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 
 
 }

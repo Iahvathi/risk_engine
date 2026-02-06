@@ -12,9 +12,6 @@ import lombok.*;
 public class CreatePolicyVersionRequest {
 
     @NotNull
-    private Long policyId;
-
-    @NotNull
     private Integer versionNumber;
 
     @NotNull

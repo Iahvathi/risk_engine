@@ -34,20 +34,21 @@ public class PolicyVersionService {
     private final LoanApplicationRepository loanApplicationRepository;
     private final RiskEvaluationService riskEvaluationService;
 
+
     @Transactional
     public ApiResponse<PolicyVersionDto> createPolicyVersion(Long policyId,
                                                              CreatePolicyVersionRequest request) {
         try {
             log.info(
                     "Creating policy version. policyId={}, versionNumber={}, status={}",
-                    request.getPolicyId(),
+                    policyId,
                     request.getVersionNumber(),
                     request.getStatus()
             );
 
-            Policy policy = policyRepository.findById(request.getPolicyId()).orElse(null);
+            Policy policy = policyRepository.findById(policyId).orElse(null);
             if (policy == null) {
-                log.warn("Policy not found. policyId={}", request.getPolicyId());
+                log.warn("Policy not found. policyId={}", policyId);
 
                 return ApiResponse.<PolicyVersionDto>builder()
                         .success(false)
@@ -59,11 +60,11 @@ public class PolicyVersionService {
             if (request.getStatus() == PolicyStatus.ACTIVE) {
                 boolean activeExists =
                         policyVersionRepository
-                                .findByPolicyIdAndStatus(policy.getId(), PolicyStatus.ACTIVE)
+                                .findByPolicyIdAndStatus(policyId, PolicyStatus.ACTIVE)
                                 .isPresent();
 
                 if (activeExists) {
-                    log.warn("Active policy version already exists. policyId={}", policy.getId());
+                    log.warn("Active policy version already exists. policyId={}", policyId);
 
                     return ApiResponse.<PolicyVersionDto>builder()
                             .success(false)
@@ -75,6 +76,7 @@ public class PolicyVersionService {
 
             PolicyVersion policyVersion = PolicyVersion.builder()
                     .policy(policy)
+                    .tenant(policy.getTenant()) // 🔥 inherit tenant
                     .versionNumber(request.getVersionNumber())
                     .status(request.getStatus())
                     .build();
@@ -82,9 +84,10 @@ public class PolicyVersionService {
             PolicyVersion saved = policyVersionRepository.save(policyVersion);
 
             log.info(
-                    "Policy version created successfully. policyVersionId={}, policyId={}",
+                    "Policy version created successfully. policyVersionId={}, policyId={}, tenantId={}",
                     saved.getId(),
-                    policy.getId()
+                    policyId,
+                    saved.getTenant().getId()
             );
 
             return ApiResponse.<PolicyVersionDto>builder()

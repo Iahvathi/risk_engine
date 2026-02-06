@@ -9,14 +9,18 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.example.engine.domain.entity.Tenant;
+import org.hibernate.annotations.Filter;
+
 @Entity
 @Table(name = "risk_evaluations")
 @Getter
 @Setter
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RiskEvaluation {
+public class RiskEvaluation extends BaseTenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,5 +67,11 @@ public class RiskEvaluation {
     @ManyToOne
     @JoinColumn(name = "policy_version_id", nullable = false)
     private PolicyVersion policyVersion;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
+
 }
 

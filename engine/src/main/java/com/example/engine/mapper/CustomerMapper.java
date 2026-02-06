@@ -3,6 +3,7 @@ package com.example.engine.mapper;
 import com.example.engine.domain.entity.Customer;
 import com.example.engine.dto.CreateCustomerRequest;
 import com.example.engine.dto.CustomerDto;
+import com.example.engine.dto.CustomerSensitiveDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,4 +15,8 @@ public interface CustomerMapper {
 
 
     Customer toEntity(CreateCustomerRequest request);
+
+    @Mapping(source = "fullName", target = "name")
+    CustomerSensitiveDto toSensitiveDto(Customer customer);
+
 }

@@ -1,10 +1,13 @@
 package com.example.engine.service;
 
+import com.example.engine.Tenant.TenantContext;
 import com.example.engine.domain.entity.Policy;
+import com.example.engine.domain.entity.Tenant;
 import com.example.engine.dto.CreatePolicyRequest;
 import com.example.engine.dto.PolicyDto;
 import com.example.engine.mapper.PolicyMapper;
 import com.example.engine.repository.PolicyRepository;
+import com.example.engine.repository.TenantRepository;
 import com.example.engine.response.ApiResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,30 +25,38 @@ public class PolicyService {
 
     private final PolicyRepository policyRepository;
     private final PolicyMapper policyMapper;
+    private final TenantRepository tenantRepository;
 
     public ApiResponse<PolicyDto> createPolicy(CreatePolicyRequest request) {
         try {
             log.info("Creating policy. name={}", request.getName());
 
-            boolean exists = policyRepository.findByName(request.getName()).isPresent();
-            if (exists) {
-                log.warn("Policy creation failed. Duplicate name={}", request.getName());
+            Long tenantId = TenantContext.getTenantId();
 
+            if (tenantId == null) {
                 return ApiResponse.<PolicyDto>builder()
                         .success(false)
-                        .message("Policy with this name already exists")
+                        .message("Tenant not identified. Missing or invalid API key.")
+                        .status(HttpStatus.BAD_REQUEST)
+                        .build();
+            }
+
+            Tenant tenant = tenantRepository.findById(tenantId)
+                    .orElseThrow(() -> new RuntimeException("Tenant not found"));
+
+            boolean exists = policyRepository.findByNameAndTenantId(request.getName(), tenantId).isPresent();
+            if (exists) {
+                return ApiResponse.<PolicyDto>builder()
+                        .success(false)
+                        .message("Policy with this name already exists for this tenant")
                         .status(HttpStatus.CONFLICT)
                         .build();
             }
 
             Policy policy = policyMapper.toEntity(request);
-            Policy savedPolicy = policyRepository.save(policy);
+            policy.setTenant(tenant);   // 🔥 CRITICAL
 
-            log.info(
-                    "Policy created successfully. policyId={}, name={}",
-                    savedPolicy.getId(),
-                    savedPolicy.getName()
-            );
+            Policy savedPolicy = policyRepository.save(policy);
 
             return ApiResponse.<PolicyDto>builder()
                     .success(true)
@@ -65,6 +76,7 @@ public class PolicyService {
                     .build();
         }
     }
+
 
     public ApiResponse<PolicyDto> getPolicyById(Long policyId) {
         try {

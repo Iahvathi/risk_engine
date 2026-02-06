@@ -20,6 +20,9 @@ public class CustomerDto {
     @NotNull
     private Integer age;
     private BigDecimal annualIncome;
+
+    //private String nationalId;
+
     @NotNull
     private CustomerStatus status;
 }

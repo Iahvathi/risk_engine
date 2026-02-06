@@ -1,20 +1,26 @@
 package com.example.engine.domain.entity;
 
 import com.example.engine.domain.enums.LoanApplicationStatus;
+import com.example.engine.encryption.AttributeEncryptor;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.example.engine.domain.entity.Tenant;
+import org.hibernate.annotations.Filter;
 
+//@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Entity
 @Table(name = "loan_applications")
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LoanApplication {
+public class LoanApplication extends BaseTenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +57,8 @@ public class LoanApplication {
 
 
     private String loanPurpose;
+    @Convert(converter = AttributeEncryptor.class)
+    @Column(nullable = false)
     private String panNumber;
 
 
@@ -74,6 +82,11 @@ public class LoanApplication {
 
     @OneToOne(mappedBy = "loanApplication")
     private RiskEvaluation riskEvaluation;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 
 
 

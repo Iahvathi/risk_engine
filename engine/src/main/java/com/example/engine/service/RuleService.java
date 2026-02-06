@@ -71,7 +71,9 @@ public class RuleService {
                     .actionValue(request.getActionValue())
                     .enabled(request.getEnabled())
                     .policyVersion(policyVersion)
+                    .tenant(policyVersion.getTenant()) // 🔥 inherit tenant
                     .build();
+
 
             Rule savedRule = ruleRepository.save(rule);
 

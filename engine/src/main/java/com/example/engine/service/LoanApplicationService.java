@@ -47,6 +47,7 @@ public class LoanApplicationService {
 
             LoanApplication loan = LoanApplication.builder()
                     .customer(customer)
+                    .tenant(customer.getTenant()) // 🔥 Attach same tenant as customer
                     .requestedAmount(request.getRequestedAmount())
                     .tenureInMonths(request.getTenureMonths())
                     .status(LoanApplicationStatus.SUBMITTED)
@@ -58,6 +59,7 @@ public class LoanApplicationService {
                     .loanPurpose(request.getLoanPurpose())
                     .panNumber(request.getPanNumber())
                     .build();
+
 
             LoanApplication savedLoan = loanApplicationRepository.saveAndFlush(loan);
 

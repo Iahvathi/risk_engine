@@ -6,14 +6,21 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.engine.domain.entity.Tenant;
+import org.hibernate.annotations.Filter;
+
+
+//@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
 @Entity
 @Table(name = "policies")
 @Getter
 @Setter
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Policy {
+public class Policy extends BaseTenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +41,9 @@ public class Policy {
             orphanRemoval = false
     )
     private List<PolicyVersion> versions = new ArrayList<>();
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
 }

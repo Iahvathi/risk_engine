@@ -105,10 +105,12 @@ public class RiskEvaluationService {
                     .customer(customer)
                     .loanApplication(loan)
                     .policyVersion(activePolicy)
+                    .tenant(loan.getTenant()) // 🔥 inherit tenant from loan
                     .decision(decision)
                     .riskScore(score)
                     .trigger(trigger)
                     .build();
+
 
             riskEvaluationRepository.save(riskEvaluation);
 
