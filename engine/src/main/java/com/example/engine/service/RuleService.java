@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -131,6 +133,35 @@ public class RuleService {
             return ApiResponse.<RuleDto>builder()
                     .success(false)
                     .message("Failed to fetch rule")
+                    .error(ex.getMessage())
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+    }
+
+    public ApiResponse<List<RuleDto>> getAllRules() {
+        try {
+            log.info("Fetching all rules");
+
+            List<Rule> rules = ruleRepository.findAll();
+
+            List<RuleDto> ruleDtos = rules.stream()
+                    .map(ruleMapper::toDto)
+                    .toList();
+
+            return ApiResponse.<List<RuleDto>>builder()
+                    .success(true)
+                    .message("Rules fetched successfully")
+                    .data(ruleDtos)
+                    .status(HttpStatus.OK)
+                    .build();
+
+        } catch (Exception ex) {
+            log.error("Error while fetching rules", ex);
+
+            return ApiResponse.<List<RuleDto>>builder()
+                    .success(false)
+                    .message("Failed to fetch rules")
                     .error(ex.getMessage())
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .build();

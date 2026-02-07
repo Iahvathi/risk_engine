@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/rules")
 @RequiredArgsConstructor
@@ -34,6 +36,18 @@ public class RuleController {
 
         ApiResponse<RuleDto> response =
                 ruleService.getRuleById(id);
+
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<RuleDto>>> getAllRules() {
+
+        ApiResponse<List<RuleDto>> response =
+                ruleService.getAllRules();
 
         return ResponseEntity
                 .status(response.getStatus())
