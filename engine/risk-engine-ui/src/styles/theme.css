@@ -1,0 +1,26 @@
+:root {
+  --bg-main: #0b1420;
+  --bg-card: #111c2e;
+  --bg-soft: #162338;
+
+  --text-main: #f5f1e8;
+  --text-muted: #9fb0c7;
+
+  --accent: #f5f1e8;
+  --border: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  background: linear-gradient(135deg, #0b1420, #0f1c2e);
+  color: var(--text-main);
+}
+
+.card {
+  background: var(--bg-card);
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-top: 20px;
+}
